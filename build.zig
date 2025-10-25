@@ -83,6 +83,22 @@ pub fn build(b: *std.Build) void {
         }),
     });
 
+    // Include paths for Whisper.cpp headers
+    exe.addIncludePath(b.path("whisper.cpp/include"));
+    exe.addIncludePath(b.path("whisper.cpp/ggml/include"));
+
+    // Link required system libraries for Whisper.cpp
+    exe.linkLibC();
+    exe.linkLibCpp();
+
+    // Unix/macOS: Add library paths
+    exe.addLibraryPath(b.path("whisper.cpp/build/src"));
+    exe.addLibraryPath(b.path("whisper.cpp/build/ggml/src"));
+
+    // Link whisper and ggml libraries
+    exe.linkSystemLibrary("whisper");
+    exe.linkSystemLibrary("ggml");
+
     // This declares intent for the executable to be installed into the
     // install prefix when running `zig build` (i.e. when executing the default
     // step). By default the install prefix is `zig-out/` but can be overridden
