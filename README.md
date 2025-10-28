@@ -39,8 +39,16 @@ zig build -Doptimize=ReleaseSafe    # Optimized with safety checks
 ### Run
 
 ```sh
-./zig-out/bin/transcripteur
+./zig-out/bin/transcripteur --model <path> --audio <path>
 ```
+
+Options :
+
+| Options | Descriptions |
+| :-- | :-- |
+| `--help` or `-h` | Show all options |
+| `--model` | Whisper model file |
+| `--audio` | Audio file |
 
 ## License
 
