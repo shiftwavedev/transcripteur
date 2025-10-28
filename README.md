@@ -15,6 +15,8 @@ Clone project and setup :
 
 ```sh
 git clone https://github.com/shiftwavedev/transcripteur.git
+## or via Codeberg
+git clone https://codeberg.org/shiftwave/transcripteur.git
 cd transcripteur
 git submodule update --init --recursive
 ```
