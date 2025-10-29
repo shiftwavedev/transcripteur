@@ -16,6 +16,10 @@ pub fn build(b: *std.Build) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall. Here we do not
     // set a preferred release mode, allowing the user to decide how to optimize.
     const optimize = b.standardOptimizeOption(.{});
+
+    // Platform-specific library paths
+    const is_windows = target.result.os.tag == .windows;
+
     // It's also possible to define more custom flags to toggle optional features
     // of this build script using `b.option()`. All defined flags (including
     // target and optimize options) will be listed when running `zig build --help`
@@ -91,9 +95,16 @@ pub fn build(b: *std.Build) void {
     exe.linkLibC();
     exe.linkLibCpp();
 
-    // Unix/macOS: Add library paths
-    exe.addLibraryPath(b.path("whisper.cpp/build/src"));
-    exe.addLibraryPath(b.path("whisper.cpp/build/ggml/src"));
+    // Add library paths based on platform
+    if (is_windows) {
+        // Windows: Libraries (.lib files) are in specific Release/ directories
+        exe.addLibraryPath(b.path("whisper.cpp/build/src/Release"));
+        exe.addLibraryPath(b.path("whisper.cpp/build/ggml/src/Release"));
+    } else {
+        // Unix/macOS: Add library paths
+        exe.addLibraryPath(b.path("whisper.cpp/build/src"));
+        exe.addLibraryPath(b.path("whisper.cpp/build/ggml/src"));
+    }
 
     // Link whisper and ggml libraries
     exe.linkSystemLibrary("whisper");
@@ -104,6 +115,32 @@ pub fn build(b: *std.Build) void {
     // step). By default the install prefix is `zig-out/` but can be overridden
     // by passing `--prefix` or `-p`.
     b.installArtifact(exe);
+
+    // On Windows, copy required DLLs to the output directory
+    if (is_windows) {
+        // All whisper.cpp DLLs are in bin/Release/ directory
+        const whisper_dlls = [_][]const u8{
+            "whisper.dll",
+            "ggml.dll",
+            "ggml-base.dll",
+            "ggml-cpu.dll",
+        };
+
+        for (whisper_dlls) |dll_name| {
+            const dll_path = std.fmt.allocPrint(
+                b.allocator,
+                "whisper.cpp/build/bin/Release/{s}",
+                .{dll_name},
+            ) catch @panic("Failed to allocate DLL path");
+
+            const install_dll = b.addInstallFileWithDir(
+                b.path(dll_path),
+                .bin,
+                dll_name,
+            );
+            b.getInstallStep().dependOn(&install_dll.step);
+        }
+    }
 
     // This creates a top level step. Top level steps have a name and can be
     // invoked by name when running `zig build` (e.g. `zig build run`).

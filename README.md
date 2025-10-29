@@ -6,8 +6,13 @@
 
 ### Requirements
 
+**All platforms:**
 - [Zig 0.15.x](https://ziglang.org/)
-- [Cmake](https://cmake.org/)
+- [CMake](https://cmake.org/)
+
+**Windows only:**
+- [Visual Studio 2022 Build Tools](https://visualstudio.microsoft.com/fr/downloads/) or Visual Studio 2022
+  - Required components: "Desktop development with C++"
 
 ### Build && setup
 
@@ -23,11 +28,23 @@ git submodule update --init --recursive
 
 Build whisper.cpp :
 
+**Linux/macOS:**
+
 ```sh
-cd whisper
+cd whisper.cpp
 mkdir build && cd build
 cmake .. && make -j
 cd ../..
+```
+
+**Windows:**
+
+```cmd
+cd whisper.cpp
+mkdir build && cd build
+cmake .. -DCMAKE_BUILD_TYPE=Release
+cmake --build . --config Release
+cd ..\..
 ```
 
 Build `transcripteur` :
@@ -40,9 +57,19 @@ zig build -Doptimize=ReleaseSafe    # Optimized with safety checks
 
 ### Run
 
+**Linux/macOS:**
+
 ```sh
 ./zig-out/bin/transcripteur --model <path> --audio <path>
 ```
+
+**Windows:**
+
+```cmd
+zig-out\bin\transcripteur.exe --model <path> --audio <path>
+```
+
+> **Note:** On Windows, the required DLLs (whisper.dll, ggml.dll, ggml-base.dll, ggml-cpu.dll) are automatically copied to `zig-out\bin\` during the build.
 
 Options :
 
