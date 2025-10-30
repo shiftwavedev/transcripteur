@@ -44,11 +44,11 @@ pub fn parseArgs(allocator: std.mem.Allocator) !?Config {
     var audio_path: ?[]const u8 = null;
     var language: ?[]const u8 = null;
     var translate: bool = false;
+    var show_help = false;
 
     while (args.next()) |arg| {
         if (std.mem.eql(u8, arg, "-h") or std.mem.eql(u8, arg, "--help")) {
-            printHelp();
-            return null;
+            show_help = true;
         } else if (std.mem.eql(u8, arg, "--model")) {
             const next = args.next() orelse {
                 std.debug.print("[Error]: --model requires an argument\n", .{});
@@ -77,6 +77,11 @@ pub fn parseArgs(allocator: std.mem.Allocator) !?Config {
             std.debug.print("Use --help for usage information\n", .{});
             return error.UnknownArgument;
         }
+    }
+
+    if (show_help) {
+        printHelp();
+        return null;
     }
 
     if (model_path == null) {
