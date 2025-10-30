@@ -57,6 +57,8 @@ zig build -Doptimize=ReleaseSafe    # Optimized with safety checks
 
 ### Run
 
+**Basic usage:**
+
 **Linux/macOS:**
 
 ```sh
@@ -69,15 +71,50 @@ zig build -Doptimize=ReleaseSafe    # Optimized with safety checks
 zig-out\bin\transcripteur.exe --model <path> --audio <path>
 ```
 
+**Multiple files:**
+
+```sh
+# Process multiple audio files at once (comma-separated)
+./zig-out/bin/transcripteur --model model.bin --audio "file1.wav,file2.wav,file3.wav"
+```
+
+**With language and translation:**
+
+```sh
+# Transcribe in French
+./zig-out/bin/transcripteur --model model.bin --audio audio.wav --language fr
+
+# Translate from French to English
+./zig-out/bin/transcripteur --model model.bin --audio audio.wav --language fr --translate
+```
+
 > **Note:** On Windows, the required DLLs (whisper.dll, ggml.dll, ggml-base.dll, ggml-cpu.dll) are automatically copied to `zig-out\bin\` during the build.
 
-Options :
+### Options
 
-| Options | Descriptions |
+| Option | Description |
 | :-- | :-- |
 | `--help` or `-h` | Show all options |
-| `--model` | Whisper model file |
-| `--audio` | Audio file |
+| `--model <path>` | Path to Whisper model file (required) |
+| `--audio <paths>` | Audio file(s) in WAV format. Use comma to separate multiple files (required) |
+| `-l, --language <code>` | Language code (e.g., en, fr, es, de) or "auto" for automatic detection |
+| `--translate` | Translate transcription to English (only English translation supported) |
+
+### Examples
+
+```sh
+# Simple transcription
+./zig-out/bin/transcripteur --model ggml-base.bin --audio recording.wav
+
+# Multiple files with French language
+./zig-out/bin/transcripteur --model ggml-base.bin --audio "audio1.wav,audio2.wav" -l fr
+
+# Transcribe Spanish audio and translate to English
+./zig-out/bin/transcripteur --model ggml-base.bin --audio spanish.wav -l es --translate
+
+# Auto-detect language for multiple files
+./zig-out/bin/transcripteur --model ggml-base.bin --audio "file1.wav,file2.wav,file3.wav" -l auto
+```
 
 ## License
 
