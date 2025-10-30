@@ -36,8 +36,16 @@ pub fn main() void {
         audio_data.channels,
     });
 
-    std.debug.print("Running transcription...\n", .{});
-    const result = whisper_ctx.transcribe(audio_data.samples, null, false) catch |err| {
+    if (config.translate) {
+        std.debug.print("Running transcription and translation to English...\n", .{});
+    } else {
+        std.debug.print("Running transcription...\n", .{});
+    }
+    if (config.language) |lang| {
+        std.debug.print("Language: {s}\n", .{lang});
+    }
+    
+    const result = whisper_ctx.transcribe(audio_data.samples, config.language, config.translate) catch |err| {
         std.debug.print("[Error]: Failed to transcribe: {}\n", .{err});
         allocator.free(audio_data.samples);
         whisper_ctx.deinit();
